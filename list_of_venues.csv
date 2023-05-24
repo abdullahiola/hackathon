@@ -1,0 +1,5 @@
+list_of_venues = [
+    {'name': 'CLT', 'capacity': 50},
+    {'name': 'FLT', 'capacity': 100},
+    {'name': 'KDLT', 'capacity': 150},
+]

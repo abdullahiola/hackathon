@@ -5,7 +5,7 @@ from prettytable import PrettyTable
 courses = pd.read_csv("courses.csv")
 list_of_venues = pd.read_csv("list_of_venues.csv").to_dict("records")
 
-#split the using colon and returns it as an integer
+#split the time using colon and returns it as an integer
 def split_data_and_return_time(time_str):
     hour = int(time_str.split(":")[0])
     return hour

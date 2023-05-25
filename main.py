@@ -23,6 +23,7 @@ def check_time_clash(i,row,venue_result_list):
 
 def append_to_venue_result_list(val,courses,venue,venue_result_list):
     val["venue"] = venue['name']
+    val["venue_capacity"] = venue['capacity']
     venue_result_list.append(val)
     return 
 
@@ -30,16 +31,9 @@ def timetable():
 
     courses["start_time"] = courses["start_time"].apply(split_data_and_return_time)
     courses["finish_time"] = courses["finish_time"].apply(split_data_and_return_time)
-    
-    unsorted_time_table = PrettyTable(field_names=courses.columns.tolist(), title="Unsorted Table")
-    for _,row in courses.iterrows():
-        unsorted_time_table.add_row(row.values)
     sorted_courses = courses.sort_values(by=['finish_time'], ignore_index=True)
 
-    print(unsorted_time_table)
-
     venue_result_list = []
-
     for i,row in sorted_courses.iterrows():
         if i == 0:
             for venue in list_of_venues:

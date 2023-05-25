@@ -23,6 +23,7 @@ def check_time_clash(i,row,venue_result_list):
 
 def append_to_venue_result_list(val,courses,venue,venue_result_list):
     val["venue"] = venue['name']
+    val["venue_capacity"] = venue['capacity']
     venue_result_list.append(val)
     return 
 

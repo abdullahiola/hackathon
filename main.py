@@ -1,56 +1,72 @@
 import pandas as pd
 from prettytable import PrettyTable
 
-data = pd.read_csv("courses.csv")
 
+courses = pd.read_csv("courses.csv")
+list_of_venues = pd.read_csv("list_of_venues.csv").to_dict("records")
 
-def okTimetable():
-    '''
-    Line 33 and 34 sort both the dictionary and the list of tuples that have been constructed before now
-    they both sort their respective data sets
-    '''
-    data["start_time"] = data["start_time"].apply(lambda x: int(x.split(":")[0]))
-    data["finish_time"] = data["finish_time"].apply(lambda x: int(x.split(":")[0]))
+#split the using colon and returns it as an integer
+def split_data_and_return_time(time_str):
+    hour = int(time_str.split(":")[0])
+    return hour
+
+#checks if the capacity of the venue is greater than the number of students
+def check_capacity(venue, no_of_students):
+    if venue["capacity"] >= no_of_students:
+        return True
+    return False
+
+def check_time_clash(i,row,venue_result_list):
+    if row["start_time"] >= venue_result_list[i-1]["finish_time"]:
+        return True
+    return False
+
+def append_to_venue_result_list(val,courses,venue,venue_result_list):
+    val["venue"] = venue['name']
+    venue_result_list.append(val)
+    return venue_result_list
+
+def timetable():
+
+    courses["start_time"] = courses["start_time"].apply(split_data_and_return_time)
+    courses["finish_time"] = courses["finish_time"].apply(split_data_and_return_time)
     
-    data_table = PrettyTable(field_names=data.columns.tolist(), title="Unsorted data")
-    for _,row in data.iterrows():
-        data_table.add_row(row.values)
-    sortedCourses = data.sort_values(by=['finish_time'], ignore_index=True)
+    unsorted_time_table = PrettyTable(field_names=courses.columns.tolist(), title="Unsorted Table")
+    for _,row in courses.iterrows():
+        unsorted_time_table.add_row(row.values)
+    sorted_courses = courses.sort_values(by=['finish_time'], ignore_index=True)
 
-    print(data_table)
+    print(unsorted_time_table)
 
-    with_venues = []
-    for i , row in sortedCourses.iterrows():
+    venue_result_list = []
+
+    for i,row in sorted_courses.iterrows():
         if i == 0:
             for venue in list_of_venues:
-                if venue['capacity'] >= row["no_of_students"]:
-                    val = data.iloc[0].to_dict()
-                    val["venue"] = venue['name']
-                    with_venues.append(val)
+                if check_capacity(venue, row["no_of_students"]) == True:
+                    val = sorted_courses.iloc[i].to_dict()
+                    append_to_venue_result_list(val,courses,venue,venue_result_list)
                     break
         else:
-            if (row["start_time"] >= with_venues[i-1]["finish_time"]):
+            if check_time_clash(i,row,venue_result_list) == True:
                 for venue in list_of_venues:
-                    if venue["capacity"] >= row["no_of_students"]:
-                        val = sortedCourses.iloc[i].to_dict()
-                        val["venue"] = venue["name"]
-                        with_venues.append(val)
+                    if check_capacity(venue, row["no_of_students"])== True:
+                        append_to_venue_result_list(val,courses,venue,venue_result_list)
                         break
             else:
                 for venue in list_of_venues:
-                    if (venue['capacity'] >= row["no_of_students"]) and (with_venues[i-1]["venue"] != venue["name"]):
-                        val = sortedCourses.iloc[i].to_dict()
-                        val["venue"] = venue["name"]
-                        with_venues.append(val)
+                    if check_capacity(venue,row["no_of_students"]) == True and (venue_result_list[i-1]["venue"] != venue["name"]):
+                        append_to_venue_result_list(val,courses,venue,venue_result_list)
                         break
+                    
     
-    table = PrettyTable(field_names=with_venues[0].keys(), title= "TimeTable with Venues in Sorted order")
-    for row in with_venues:
+    table = PrettyTable(field_names=venue_result_list[0].keys(), title= "TimeTable with Venues in Sorted order")
+    for row in venue_result_list:
         table.add_row(row.values())        
         
     print(table)
     
-okTimetable()
+timetable()
 
 
 #pending tasks 

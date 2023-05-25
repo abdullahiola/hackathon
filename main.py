@@ -24,7 +24,7 @@ def check_time_clash(i,row,venue_result_list):
 def append_to_venue_result_list(val,courses,venue,venue_result_list):
     val["venue"] = venue['name']
     venue_result_list.append(val)
-    return venue_result_list
+    return 
 
 def timetable():
 
@@ -44,18 +44,20 @@ def timetable():
         if i == 0:
             for venue in list_of_venues:
                 if check_capacity(venue, row["no_of_students"]) == True:
-                    val = sorted_courses.iloc[i].to_dict()
+                    val = row.to_dict()
                     append_to_venue_result_list(val,courses,venue,venue_result_list)
                     break
         else:
             if check_time_clash(i,row,venue_result_list) == True:
                 for venue in list_of_venues:
                     if check_capacity(venue, row["no_of_students"])== True:
+                        val = row.to_dict()
                         append_to_venue_result_list(val,courses,venue,venue_result_list)
                         break
             else:
                 for venue in list_of_venues:
                     if check_capacity(venue,row["no_of_students"]) == True and (venue_result_list[i-1]["venue"] != venue["name"]):
+                        val = row.to_dict()
                         append_to_venue_result_list(val,courses,venue,venue_result_list)
                         break
                     

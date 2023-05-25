@@ -1,5 +1,4 @@
-list_of_venues = [
-    {'name': 'CLT', 'capacity': 50},
-    {'name': 'FLT', 'capacity': 100},
-    {'name': 'KDLT', 'capacity': 150},
-]
+name,capacity
+CLT,50
+FLT,100
+KDLT,150

@@ -61,7 +61,12 @@ def timetable():
         table.add_row(row.values())        
         
     print(table)
-    
+
+    #covert the table to excel format
+    df = pd.DataFrame.from_dict(venue_result_list)
+    print(df)
+    df.to_excel('timetable.xlsx')
+   
 timetable()
 
 

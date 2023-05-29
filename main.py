@@ -1,8 +1,60 @@
 import pandas as pd
 from prettytable import PrettyTable
 
-courses = pd.read_csv("courses.csv")
-list_of_venues = pd.read_csv("list_of_venues.csv").to_dict("records")
+welcome_text = """
+\t\tGroup 2 Hackathon Project
+Would you like to:
+1.) Proceed to use this program with our csv files
+2.) Provide your own courses
+3.) Provide your own venues
+4.) Provide both courses and venues
+
+Answer with one of the numbers specified above: 
+"""
+
+mode = int(input(welcome_text))
+if mode == 1:
+    pass
+
+if mode == 2 or mode == 4:
+    N = int(input("How many courses do you want to enter?: "))
+    data = []
+    for i in range(N):
+        name = input(f"What is the name of course {i+1}: ")
+        start = input(f"What is the start time of {name} (24 hour format e.g 14:30): ")
+        end = input(f"What is the finish time of {name} (24 hour format e.g 15:30): ")
+        students = int(input(f"How many students offer {name} (a plain number e.g 10): "))
+        data.append({
+            "Course": name,
+            "start_time": start,
+            "finish_time": end,
+            "no_of_students": students
+        })
+        
+    courses_df = pd.DataFrame(data)
+    courses_df.to_csv("user_courses.csv", index=False)
+
+if mode == 3 or mode == 4:
+    N = int(input("How many venues do you want to enter: "))
+    venue_data = []
+    for i in range(N):
+        name = input(f"What is the name of venue {i+1}: ")
+        capacity = int(input(f"What is the capacity of {name} (a plain number e.g 40): "))
+        venue_data.append({
+            "name": name,
+            "capacity": capacity
+        })
+        
+    venues_df = pd.DataFrame(venue_data)
+    venues_df.to_csv("user_venues.csv", index=False)
+
+if mode == 2 or mode == 4:
+    courses = pd.read_csv("user_courses.csv")
+if mode == 3 or mode == 4:
+    list_of_venues = pd.read_csv("user_venues.csv").to_dict("records")
+elif mode == 1:
+    courses = pd.read_csv("courses.csv")
+    list_of_venues = pd.read_csv("list_of_venues.csv").to_dict("records")
 
 # sorting the venues by capacity
 list_of_venues.sort(key = lambda venue: venue["capacity"])
@@ -31,7 +83,7 @@ def append_to_venue_result_list(val,venue,venue_result_list):
 
 def no_suitable_venue(val, venue_result_list):
     val["venue"] = "No suitable venue"
-    val["venue_capacity"] = "null"
+    val["venue_capacity"] = 0
     venue_result_list.append(val)
     return
     
@@ -42,7 +94,7 @@ def timetable():
     courses["finish_time"] = courses["finish_time"].apply(split_data_and_return_time)
     
     # sorting by both finish time and number of students
-    sorted_courses = courses.sort_values(by=["finish_time", "no_of_students"], ascending=[True, False], ignore_index=True)
+    sorted_courses = courses.sort_values(by=["finish_time", "no_of_students"], ascending=[True, True], ignore_index=True)
 
     # creating a copy of the list of venues so we don't mess up the original
     venues_list = [dic.copy() for dic in list_of_venues]
@@ -93,9 +145,9 @@ def timetable():
 
     #covert the table to excel format
     df = pd.DataFrame.from_dict(venue_result_list)
-    df.to_excel('timetable.xlsx')
+    if mode != 1:
+        df.to_excel('user_timetable.xlsx')
+    else:
+        df.to_excel('timetable.xlsx')
    
 timetable()
-
-
-#pending tasks 

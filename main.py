@@ -59,11 +59,6 @@ elif mode == 1:
 # sorting the venues by capacity
 list_of_venues.sort(key = lambda venue: venue["capacity"])
 
-#split the time using colon and returns it as an integer
-def split_data_and_return_time(time_str):
-    hour = int(time_str.split(":")[0])
-    return hour
-
 #checks if the capacity of the venue is greater than the number of students
 def check_capacity(venue, no_of_students):
     if venue["capacity"] >= no_of_students:
@@ -90,8 +85,9 @@ def no_suitable_venue(val, venue_result_list):
 
 def timetable():
 
-    courses["start_time"] = courses["start_time"].apply(split_data_and_return_time)
-    courses["finish_time"] = courses["finish_time"].apply(split_data_and_return_time)
+    # convert start and finish time to datetime objects
+    courses["start_time"] = pd.to_datetime(courses["start_time"], format="%H:%M")
+    courses["finish_time"] = pd.to_datetime(courses["finish_time"], format="%H:%M")
     
     # sorting by both finish time and number of students
     sorted_courses = courses.sort_values(by=["finish_time", "no_of_students"], ascending=[True, True], ignore_index=True)
@@ -136,6 +132,11 @@ def timetable():
                 else:
                     val = row.to_dict()
                     no_suitable_venue(val, venue_result_list)
+                    
+    # convert the start time and finish time back to strings
+    for row in venue_result_list:
+        row["start_time"] = row["start_time"].strftime("%H:%M")
+        row["finish_time"] = row["finish_time"].strftime("%H:%M")
     
     table = PrettyTable(field_names=venue_result_list[0].keys(), title= "TimeTable with Venues in Sorted order")
     for row in venue_result_list:

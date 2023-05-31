@@ -48,13 +48,21 @@ if mode == 3 or mode == 4:
     venues_df = pd.DataFrame(venue_data)
     venues_df.to_csv("user_venues.csv", index=False)
 
-if mode == 2 or mode == 4:
-    courses = pd.read_csv("user_courses.csv")
-if mode == 3 or mode == 4:
-    list_of_venues = pd.read_csv("user_venues.csv").to_dict("records")
-elif mode == 1:
+if mode == 1:
     courses = pd.read_csv("courses.csv")
     list_of_venues = pd.read_csv("list_of_venues.csv").to_dict("records")
+    
+elif mode == 2:
+    courses = pd.read_csv("user_courses.csv")
+    list_of_venues = pd.read_csv("list_of_venues.csv").to_dict("records")
+    
+elif mode == 3:
+    courses = pd.read_csv("courses.csv")
+    list_of_venues = pd.read_csv("user_venues.csv").to_dict("records")
+    
+else:
+    courses = pd.read_csv("user_courses.csv")
+    list_of_venues = pd.read_csv("user_venues.csv").to_dict("records")
 
 # sorting the venues by capacity
 list_of_venues.sort(key = lambda venue: venue["capacity"])

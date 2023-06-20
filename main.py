@@ -1,5 +1,5 @@
 import pandas as pd
-from prettytable import PrettyTable
+from prettytable import from_csv
 
 welcome_text = """
 \t\tGroup 2 Hackathon Project
@@ -105,55 +105,38 @@ def timetable():
 
     venue_result_list = []
     for i,row in sorted_courses.iterrows():
-        if i == 0:
-            for venue in venues_list:
-                if check_capacity(venue, row["no_of_students"]) == True:
-                    # giving each venue a 'timestamp' which is the finish time of the course currently being written there
+        for venue in venues_list:
+            if check_capacity(venue, row["no_of_students"]):
+                # if the venue doesn't have a timestamp, it hasn't been used for any course, so use it and assign a timestamp to it
+                if venue.get("timestamp", 0) == 0:
                     venue["timestamp"] = row["finish_time"]
                     val = row.to_dict()
                     append_to_venue_result_list(val,venue,venue_result_list)
                     break
-        else:
-            if check_time_clash(i,row,venue_result_list) == True:
-                for venue in venues_list:
-                    if check_capacity(venue, row["no_of_students"])== True:
+                # if the venue has a timestamp, check if the start time of the course is less or equal to the time stamp
+                # if it is, assign the course to it, and update the timestamp
+                else:
+                    if venue["timestamp"] <= row["start_time"]:
                         val = row.to_dict()
                         append_to_venue_result_list(val,venue,venue_result_list)
+                        venue["timestamp"] = row["finish_time"]
                         break
-            else:
-                for venue in venues_list:
-                    if check_capacity(venue, row["no_of_students"]):
-                        # if the venue doesn't have a timestamp, it hasn't been used for any course, so use it and assign a timestamp to it
-                        if venue.get("timestamp", 0) == 0:
-                            venue["timestamp"] = row["finish_time"]
-                            val = row.to_dict()
-                            append_to_venue_result_list(val,venue,venue_result_list)
-                            break
-                        # if the venue has a timestamp, check if the start time of the course is less or equal to the time stamp
-                        # if it is, assign the course to it, and update the timestamp
-                        else:
-                            if venue["timestamp"] <= row["start_time"]:
-                                val = row.to_dict()
-                                append_to_venue_result_list(val,venue,venue_result_list)
-                                venue["timestamp"] = row["finish_time"]
-                                break
-                else:
-                    val = row.to_dict()
-                    no_suitable_venue(val, venue_result_list)
+        else:
+            val = row.to_dict()
+            no_suitable_venue(val, venue_result_list)
                     
     # convert the start time and finish time back to strings
     for row in venue_result_list:
         row["start_time"] = row["start_time"].strftime("%H:%M")
         row["finish_time"] = row["finish_time"].strftime("%H:%M")
-    
-    table = PrettyTable(field_names=venue_result_list[0].keys(), title= "TimeTable with Venues in Sorted order")
-    for row in venue_result_list:
-        table.add_row(row.values())        
-        
-    print(table)
 
     #covert the table to excel format
     df = pd.DataFrame.from_dict(venue_result_list)
+    df.to_csv("idea.csv", index=False)
+    
+    table = from_csv(open("idea.csv"), title="TimeTable with Venues in Sorted order")
+    print(table)
+    
     if mode != 1:
         df.to_excel('user_timetable.xlsx')
     else:
